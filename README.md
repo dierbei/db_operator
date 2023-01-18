@@ -21,6 +21,12 @@ $GOPATH/src/k8s.io/code-generator/generate-groups.sh all  github.com/shenyisyn/d
 # 不能生成在 main.go 中加入 import _ "k8s.io/code-generator" && go mod tidy
 ```
 
+## 控制器关键点
+```text
+1. Reconcile 函数（增删改查）
+2. 启动 manager，并使用控制器
+```
+
 ## 参考链接
 ```shell
 # code-generator 生成代码
