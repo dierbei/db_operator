@@ -33,5 +33,6 @@ type DbConfigSpec struct {
 }
 
 type DbConfigStatus struct {
-	Replicas int
+	Replicas int32  `json:"replicas,omitempty"`
+	Ready    string `json:"ready,omitempty"` //新增属性。 用来显示 当前副本数情况
 }

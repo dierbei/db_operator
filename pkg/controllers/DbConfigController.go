@@ -4,6 +4,7 @@ import (
 	"context"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/util/workqueue"
+	"log"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 
 	v1 "github.com/shenyisyn/dbcore/pkg/apis/dbconfig/v1"
@@ -59,6 +60,21 @@ func (r *DbConfigController) OnDelete(event event.DeleteEvent,
 				reconcile.Request{
 					types.NamespacedName{
 						Name: ref.Name, Namespace: event.Object.GetNamespace(),
+					},
+				})
+		}
+	}
+}
+
+func (r *DbConfigController) OnUpdate(event event.UpdateEvent,
+	limitingInterface workqueue.RateLimitingInterface) {
+	for _, ref := range event.ObjectNew.GetOwnerReferences() {
+		log.Println("deployment update")
+		if ref.Kind == "DbConfig" && ref.APIVersion == "api.jtthink.com/v1" {
+			limitingInterface.Add(
+				reconcile.Request{
+					types.NamespacedName{
+						Name: ref.Name, Namespace: event.ObjectNew.GetNamespace(),
 					},
 				})
 		}

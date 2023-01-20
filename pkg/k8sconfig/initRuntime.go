@@ -35,6 +35,7 @@ func InitManager() {
 	if err = builder.ControllerManagedBy(mgr).For(&v1.DbConfig{}).Watches(&source.Kind{Type: &appv1.Deployment{}},
 		handler.Funcs{
 			DeleteFunc: dbconfigController.OnDelete,
+			UpdateFunc: dbconfigController.OnUpdate,
 		},
 	).Complete(controllers.NewDbConfigController()); err != nil {
 		mgr.GetLogger().Error(err, "unable to create manager")

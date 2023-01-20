@@ -3,6 +3,7 @@ package builders
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"text/template"
 
 	configv1 "github.com/shenyisyn/dbcore/pkg/apis/dbconfig/v1"
@@ -33,7 +34,7 @@ func NewDeployBuilder(config *configv1.DbConfig, c client.Client) (*DeployBuilde
 
 	if err := c.Get(context.Background(), types.NamespacedName{Name: deployName(config.Name), Namespace: config.Namespace}, deploy); err != nil {
 		// 如果没有查询到 deployment 则进行第一次模板渲染
-		deploy.Name, deploy.Namespace = deployName(config.Name), config.Namespace
+		deploy.Name, deploy.Namespace = config.Name, config.Namespace
 		tpl, err := template.New("deploy").Parse(deptpl)
 		if err != nil {
 			return nil, err
@@ -98,6 +99,15 @@ func (this *DeployBuilder) Build(ctx context.Context) error {
 		patch := client.MergeFrom(this.deploy.DeepCopy())
 		this.apply() //同步  所需要的属性 如 副本数
 		err := this.Patch(ctx, this.deploy, patch)
+		if err != nil {
+			return err
+		}
+
+		//获取当前 deployment 的 ready 状态副本数
+		this.config.Status.Ready = fmt.Sprintf("%d/%d", this.deploy.Status.ReadyReplicas, this.config.Spec.Replicas)
+		this.config.Status.Replicas = this.deploy.Status.ReadyReplicas
+
+		err = this.Client.Status().Update(ctx, this.config)
 		if err != nil {
 			return err
 		}

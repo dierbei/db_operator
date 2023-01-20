@@ -13,9 +13,9 @@ spec:
       served: true
       storage: true
       additionalPrinterColumns:
-        - name: replicas
+        - name: Ready
           type: string
-          jsonPath: .spec.status.replicas
+          jsonPath: .status.ready
         - name: Age
           type: date
           jsonPath: .metadata.creationTimestamp
@@ -40,6 +40,8 @@ spec:
               type: object
               properties:
                 replicas:
+                  type: integer
+                ready:
                   type: string
       subresources:
         status: { }
