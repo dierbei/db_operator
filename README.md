@@ -28,6 +28,11 @@ $GOPATH/src/k8s.io/code-generator/generate-groups.sh all  github.com/shenyisyn/d
 3. 进行资源监听（如何实现更新、删除、创建）
 ```
 
+## 前台级联删除
+```shell
+kubectl delete dc mydb1 --cascade=foreground
+```
+
 ## 参考链接
 ```shell
 # code-generator 生成代码

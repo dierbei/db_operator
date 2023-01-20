@@ -2,6 +2,9 @@ package controllers
 
 import (
 	"context"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/util/workqueue"
+	"sigs.k8s.io/controller-runtime/pkg/event"
 
 	v1 "github.com/shenyisyn/dbcore/pkg/apis/dbconfig/v1"
 	"github.com/shenyisyn/dbcore/pkg/builders"
@@ -29,7 +32,7 @@ func (r *DbConfigController) Reconcile(ctx context.Context, req reconcile.Reques
 	}
 
 	// 查询到对象则创建一个 builder
-	builder, err := builders.NewDeployBuilder(config, req.Namespace, req.Name, r.Client)
+	builder, err := builders.NewDeployBuilder(config, r.Client)
 	if err != nil {
 		return reconcile.Result{}, err
 	}
@@ -45,4 +48,19 @@ func (r *DbConfigController) Reconcile(ctx context.Context, req reconcile.Reques
 func (r *DbConfigController) InjectClient(c client.Client) error {
 	r.Client = c
 	return nil
+}
+
+func (r *DbConfigController) OnDelete(event event.DeleteEvent,
+	limitingInterface workqueue.RateLimitingInterface) {
+	for _, ref := range event.Object.GetOwnerReferences() {
+
+		if ref.Kind == "DbConfig" && ref.APIVersion == "api.jtthink.com/v1" {
+			limitingInterface.Add(
+				reconcile.Request{
+					types.NamespacedName{
+						Name: ref.Name, Namespace: event.Object.GetNamespace(),
+					},
+				})
+		}
+	}
 }
