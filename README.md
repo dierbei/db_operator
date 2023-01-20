@@ -25,6 +25,7 @@ $GOPATH/src/k8s.io/code-generator/generate-groups.sh all  github.com/shenyisyn/d
 ```text
 1. Reconcile 函数（增删改查）
 2. 启动 manager，并使用控制器
+3. 进行资源监听（如何实现更新、删除、创建）
 ```
 
 ## 参考链接
