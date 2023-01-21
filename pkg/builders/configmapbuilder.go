@@ -17,6 +17,7 @@ type ConfigMapBuilder struct {
 	cm     *corev1.ConfigMap
 	config *configv1.DbConfig
 	client.Client
+	DataKey string
 }
 
 func NewConfigMapBuilder(config *configv1.DbConfig, client client.Client) (*ConfigMapBuilder, error) {
@@ -42,6 +43,16 @@ func (this *ConfigMapBuilder) setOwner() *ConfigMapBuilder {
 
 const configMapKey = "app.yml"
 
+func (this *ConfigMapBuilder) parseKey() *ConfigMapBuilder {
+
+	if appData, ok := this.cm.Data[configMapKey]; ok {
+		this.DataKey = Md5(appData)
+		return this
+	}
+	this.DataKey = ""
+	return this
+}
+
 func (this *ConfigMapBuilder) apply() *ConfigMapBuilder {
 	tpl, err := template.New("appyaml").Delims("[[", "]]").Parse(cmtpl)
 	if err != nil {
@@ -62,14 +73,14 @@ func (this *ConfigMapBuilder) apply() *ConfigMapBuilder {
 
 func (this *ConfigMapBuilder) Build(ctx context.Context) error {
 	if this.cm.CreationTimestamp.IsZero() {
-		this.apply().setOwner()
+		this.apply().setOwner().parseKey()
 		err := this.Create(ctx, this.cm)
 		if err != nil {
 			return err
 		}
 	} else {
 		patch := client.MergeFrom(this.cm.DeepCopy())
-		this.apply()
+		this.apply().parseKey()
 		err := this.Patch(ctx, this.cm, patch)
 		if err != nil {
 			return err

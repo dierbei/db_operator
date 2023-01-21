@@ -103,6 +103,8 @@ func (this *DeployBuilder) Build(ctx context.Context) error {
 			return err
 		}
 
+		this.setCMAnnotation(this.cmBuilder.DataKey)
+
 		//后创建deployment
 		if err := this.Create(ctx, this.deploy); err != nil {
 			return err
@@ -114,6 +116,7 @@ func (this *DeployBuilder) Build(ctx context.Context) error {
 
 		patch := client.MergeFrom(this.deploy.DeepCopy())
 		this.apply() //同步  所需要的属性 如 副本数
+		this.setCMAnnotation(this.cmBuilder.DataKey)
 		err := this.Patch(ctx, this.deploy, patch)
 		if err != nil {
 			return err
@@ -129,4 +132,10 @@ func (this *DeployBuilder) Build(ctx context.Context) error {
 		}
 	}
 	return nil
+}
+
+const CMAnnotation = "dbcore.config/md5"
+
+func (this *DeployBuilder) setCMAnnotation(configStr string) {
+	this.deploy.Spec.Template.Annotations[CMAnnotation] = configStr
 }

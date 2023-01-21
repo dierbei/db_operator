@@ -42,6 +42,13 @@ kubectl delete dc mydb1 --cascade=foreground
 利用 ConfigMap 挂在到 Pod 里面
 ```
 
+## 软件配置更新
+```text
+1. 第一种方法是软件支持实时读取（需要修改软件，并且万一该软件不在K8s中运行呢？）
+2. 第二宗方法是控制器发现配置更新，删除Pod
+3. 第三种方法是更新Deployment annotation
+```
+
 ## 参考链接
 ```shell
 # code-generator 生成代码
