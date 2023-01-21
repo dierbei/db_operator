@@ -108,6 +108,10 @@ func (this *DeployBuilder) Build(ctx context.Context) error {
 			return err
 		}
 	} else {
+		if err := this.cmBuilder.Build(ctx); err != nil {
+			return err
+		}
+
 		patch := client.MergeFrom(this.deploy.DeepCopy())
 		this.apply() //同步  所需要的属性 如 副本数
 		err := this.Patch(ctx, this.deploy, patch)
