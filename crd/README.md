@@ -96,3 +96,58 @@ subresources:
       # statusReplicasPath 定义定制资源中对应 scale.status.replicas 的 JSON 路径
       statusReplicasPath: .status.replicas
 ```
+
+## 增加 kubectl get 打印字段步骤
+```yaml
+# 1. 增加属性
+schema:
+  openAPIV3Schema:
+    type: object
+    properties:
+      spec:
+        type: object
+        properties:
+          replicas:
+            type: integer
+            minimum: 1
+            maximum: 20
+          maxOpenConn:
+            type: integer
+            minimum: 1
+            maximum: 2000
+            default: 15
+          maxIdleConn:
+            type: integer
+            minimum: 1
+            maximum: 2000
+            default: 5
+          maxLifeTime:
+            type: integer
+            minimum: 60 #最小60秒
+            default: 600  #默认10分钟
+          dsn:
+            type: string
+
+# 2. 增加打印
+versions:
+  - name: v1
+    # 是否有效
+    served: true
+    storage: true
+    additionalPrinterColumns:
+      - name: Ready
+        type: string
+        jsonPath: .status.ready
+      - name: Age
+        type: date
+        jsonPath: .metadata.creationTimestamp
+      - name: 最大连接数
+        type: integer
+        jsonPath: .spec.maxOpenConn
+
+# 3. 生效
+kubectl apply -f crd.yaml
+
+# 4. 修改自定义资源结构体定义
+... ...
+```

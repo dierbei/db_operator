@@ -3,9 +3,9 @@ package builders
 const cmtpl = `
   dbConfig:
    dsn: "[[ .Dsn ]]"
-   maxOpenConn: 20
-   maxLifeTime: 1800
-   maxIdleConn: 5
+   maxOpenConn: [[ .MaxOpenConn ]]
+   maxLifeTime: [[ .MaxLifeTime ]]
+   maxIdleConn: [[ .MaxIdleConn ]]
   appConfig:
    rpcPort: 8081
    httpPort: 8090
