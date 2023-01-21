@@ -20,7 +20,8 @@ import (
 type DeployBuilder struct {
 	deploy *v1.Deployment
 	client.Client
-	config *configv1.DbConfig //新增属性 。保存 config 对象
+	config    *configv1.DbConfig //新增属性 。保存 config 对象
+	cmBuilder *ConfigMapBuilder  // 关联  对象
 }
 
 // deployName
@@ -50,10 +51,16 @@ func NewDeployBuilder(config *configv1.DbConfig, c client.Client) (*DeployBuilde
 		}
 	}
 
+	cmBuilder, err := NewConfigMapBuilder(config, c)
+	if err != nil {
+		return nil, err
+	}
+
 	return &DeployBuilder{
-		deploy: deploy,
-		Client: c,
-		config: config,
+		deploy:    deploy,
+		Client:    c,
+		config:    config,
+		cmBuilder: cmBuilder,
 	}, nil
 }
 
@@ -91,8 +98,13 @@ func (this *DeployBuilder) Replicas(r int) *DeployBuilder {
 func (this *DeployBuilder) Build(ctx context.Context) error {
 	if this.deploy.CreationTimestamp.IsZero() {
 		this.apply().setOwner()
-		err := this.Create(ctx, this.deploy)
-		if err != nil {
+		//先创建configmap
+		if err := this.cmBuilder.Build(ctx); err != nil {
+			return err
+		}
+
+		//后创建deployment
+		if err := this.Create(ctx, this.deploy); err != nil {
 			return err
 		}
 	} else {

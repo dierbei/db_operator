@@ -4,4 +4,4 @@ metadata:
   name: mydb1
 spec:
   replicas: 3
-  dsn: "mysql dsn"
+  dsn: "root:123456@tcp(mysqltest:3306)/test?charset=utf8mb4&parseTime=True&loc=Local"

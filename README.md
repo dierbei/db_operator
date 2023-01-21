@@ -33,6 +33,15 @@ $GOPATH/src/k8s.io/code-generator/generate-groups.sh all  github.com/shenyisyn/d
 kubectl delete dc mydb1 --cascade=foreground
 ```
 
+## 应用程序启动参数
+```shell
+# 第一种
+./dbcore --replicas=5 --dns=xxx ......
+
+# 第二种
+利用 ConfigMap 挂在到 Pod 里面
+```
+
 ## 参考链接
 ```shell
 # code-generator 生成代码
