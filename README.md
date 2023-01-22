@@ -49,6 +49,15 @@ kubectl delete dc mydb1 --cascade=foreground
 3. 第三种方法是更新Deployment annotation
 ```
 
+## 旧事件 & 子资源
+```text
+# 旧事件
+可以使用名字 & UID 进行过滤
+
+# 子资源
+判断事件的 ID 是否为 Deployment 的 UID
+```
+
 ## 参考链接
 ```shell
 # code-generator 生成代码

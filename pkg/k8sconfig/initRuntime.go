@@ -21,6 +21,12 @@ func InitManager() {
 	logf.SetLogger(zap.New())
 	mgr, err := manager.New(K8sRestConfig(), manager.Options{
 		Logger: logf.Log.WithName("dbcore"),
+
+		// 下面是选主参数
+		LeaderElection:          true,
+		LeaderElectionID:        "mydbcore-lock", // ConfigMap & lease 名字
+		LeaderElectionNamespace: "default",       // 命名空间
+		MetricsBindAddress:      ":8082",         // 端口，本地测试启动多个需要需改
 	})
 	if err != nil {
 		mgr.GetLogger().Error(err, "unable to set up manager")
@@ -43,7 +49,7 @@ func InitManager() {
 		os.Exit(1)
 	}
 
-	if err = mgr.Add(dashboard.NewAdminUi()); err != nil {
+	if err = mgr.Add(dashboard.NewAdminUi(mgr.GetClient())); err != nil {
 		mgr.GetLogger().Error(err, "unable to create dashborad")
 		os.Exit(1)
 	}
