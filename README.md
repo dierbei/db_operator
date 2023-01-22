@@ -58,6 +58,11 @@ kubectl delete dc mydb1 --cascade=foreground
 判断事件的 ID 是否为 Deployment 的 UID
 ```
 
+## 指标查看
+```shell
+http://localhost:8082/metrics
+```
+
 ## 参考链接
 ```shell
 # code-generator 生成代码

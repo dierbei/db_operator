@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"context"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/shenyisyn/dbcore/pkg/mymetrics"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/util/workqueue"
 	"log"
@@ -26,6 +28,11 @@ func NewDbConfigController() *DbConfigController {
 // 事件循环：资源的 增、删、改 都会进入此方法
 func (r *DbConfigController) Reconcile(ctx context.Context, req reconcile.Request) (reconcile.Result, error) {
 	config := &v1.DbConfig{}
+
+	// 增加指标
+	mymetrics.MyReconcileTotal.With(prometheus.Labels{
+		"controller": "dbconfig",
+	}).Inc()
 
 	// 查询对象，查询不到则返回
 	if err := r.Get(ctx, req.NamespacedName, config); err != nil {
