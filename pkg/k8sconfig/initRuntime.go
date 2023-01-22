@@ -5,6 +5,7 @@ import (
 
 	v1 "github.com/shenyisyn/dbcore/pkg/apis/dbconfig/v1"
 	"github.com/shenyisyn/dbcore/pkg/controllers"
+	"github.com/shenyisyn/dbcore/pkg/dashboard"
 
 	appv1 "k8s.io/api/apps/v1"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
@@ -39,6 +40,11 @@ func InitManager() {
 		},
 	).Complete(controllers.NewDbConfigController()); err != nil {
 		mgr.GetLogger().Error(err, "unable to create manager")
+		os.Exit(1)
+	}
+
+	if err = mgr.Add(dashboard.NewAdminUi()); err != nil {
+		mgr.GetLogger().Error(err, "unable to create dashborad")
 		os.Exit(1)
 	}
 
